@@ -54,18 +54,60 @@ class GameController extends Controller implements GameControllerInterface
      */
     public function read(Request $request): JsonResponse
     {
-        return response()->json(
-            $this->gameService->find($request)
-        );
+        $game = $this->gameService->find($request);
+
+        if ($game) {
+            return response()->json($game);
+        }
+
+        return response()->json(null, 204);
     }
 
-    public function update(Request $request, Game $game): JsonResponse
+    /**
+     * Updates the data of a single game.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request, string $id): JsonResponse
     {
-        // TODO: Implement update() method.
+        $game = $this->gameService->update($id, $request);
+
+        if ($game === null) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        if ($game === false) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        return response()->json($game);
     }
 
-    public function delete(Request $request, Game $game): JsonResponse
+    /**
+     * Deletes a game.
+     *
+     * This is a hard deletion.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function delete(Request $request, string $id): JsonResponse
     {
-        // TODO: Implement delete() method.
+        $game = $this->gameService->delete($id, $request);
+
+        if ($game === null) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        if ($game === false) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if ($game > 0) {
+            return response()->json(null, 204);
+        }
+
+        return response()->json(null, 500);
     }
 }

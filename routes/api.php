@@ -31,6 +31,8 @@ Route::post('/tokens/create', function (Request $request) {
  */
 Route::middleware('auth:sanctum')->controller(GameController::class)->group(function () {
     Route::post('/games', 'create')->name('create-game');
+    Route::patch('/games/{id}', 'update')->name('update-game');
+    Route::delete('/games/{id}', 'delete')->name('delete-game');
 });
 
 /**
