@@ -6,10 +6,9 @@ use App\Repositories\GameRepository;
 use Illuminate\Http\Request;
 
 /**
- * GameService
+ * Business logic for Game management.
  *
- * @todo Fill this class with business logic relating to games, the service layer is responsible for solving
- *   the problems and producing the result.
+ * @param GameRepository Optional. An instance of a GameRepository. Creates a new instance on construction.
  */
 class GameService
 {
@@ -21,11 +20,23 @@ class GameService
         $this->gameRepository = $gameRepository ?? new GameRepository;
     }
 
+
+    /** Fetches all games with pagination.
+     *
+     * @param integer $perPage
+     * @return void
+     */
     public function getAllPaginated(int $perPage = 10)
     {
         return $this->gameRepository->paginate($perPage);
     }
 
+
+    /** Create a Game entry.
+     *
+     * @param Request $request
+     * @return void
+     */
     public function create(Request $request)
     {
         $user = $request->user();
@@ -37,6 +48,11 @@ class GameService
         ]);
     }
 
+    /** Finds a Game.
+     *
+     * @param Request $request
+     * @return void
+     */
     public function find(Request $request)
     {
         validator($request->route()->parameters(), [
@@ -46,6 +62,13 @@ class GameService
         return $this->gameRepository->find($request->id);
     }
 
+
+    /** Update an instance of a game.
+     *
+     * @param integer $id
+     * @param Request $request
+     * @return void
+     */
     public function update(int $id, Request $request)
     {
         $user = $request->user();
@@ -73,6 +96,13 @@ class GameService
         ]);
     }
 
+
+    /** Hard deletes an instance of a Game.
+     *
+     * @param integer $id
+     * @param Request $request
+     * @return void
+     */
     public function delete(int $id, Request $request)
     {
         $user = $request->user();
