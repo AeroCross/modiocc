@@ -17,7 +17,8 @@ class GameController extends Controller implements GameControllerInterface
     public function browse(Request $request): JsonResponse
     {
         // TODO: for some reason, Laravel isn't immediately converting this Eloquent model into a JSON response.
-        // It's not the Sanctum middleware, and it's not the custom middleware either ???
+        // This should happen: https://laravel.com/docs/11.x/responses#eloquent-models-and-collections
+        // It's not the Sanctum middleware, and it's not the custom middleware either.
         return response()->json(Game::paginate(10));
     }
 
