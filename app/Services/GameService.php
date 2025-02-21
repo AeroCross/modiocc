@@ -37,4 +37,13 @@ class GameService
             'name' => $validatedData['name']
         ]);
     }
+
+    public function find(Request $request)
+    {
+        validator($request->route()->parameters(), [
+            'id' => 'required'
+        ])->validate();
+
+        return $this->gameRepository->find($request->id);
+    }
 }

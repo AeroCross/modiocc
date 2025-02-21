@@ -19,7 +19,7 @@ class GameTest extends TestCase
     public function testBrowseSucceeds(): void
     {
         $this
-            ->getJson('/api/games')
+            ->getJson('/api/games/')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'current_page',
@@ -37,7 +37,7 @@ class GameTest extends TestCase
     {
         $this
             ->asAuthorizedUser()
-            ->post('/api/games', [
+            ->post('/api/games/', [
                 'name' => 'Rogue Knight'
             ])
             ->assertStatus(Response::HTTP_CREATED)
@@ -55,13 +55,12 @@ class GameTest extends TestCase
 
     public function testReadSucceeds(): void
     {
-        // todo create the game that we are going to view, adding the required authentication
-        $response = $this->post('games', [
+        $response = $this->asAuthorizedUser()->post('/api/games/', [
             'name' => 'Rogue Knight'
         ]);
 
         $this
-            ->get('games/' . $response->json('id'))
+            ->get('/api/games/' . $response->json('id'))
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'id',
@@ -78,7 +77,7 @@ class GameTest extends TestCase
     public function testCreateFailsWhileUnauthenticated(): void
     {
         $this
-            ->post('games', [
+            ->post('/api/games', [
                 'name' => 'Rogue Knight'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);

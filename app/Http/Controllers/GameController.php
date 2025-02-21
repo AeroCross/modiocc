@@ -45,9 +45,18 @@ class GameController extends Controller implements GameControllerInterface
         return response()->json(null, 422);
     }
 
-    public function read(Request $request, Game $game): JsonResponse
+
+    /**
+     * Gets the data of a single game.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function read(Request $request): JsonResponse
     {
-        // TODO: Implement read() method.
+        return response()->json(
+            $this->gameService->find($request)
+        );
     }
 
     public function update(Request $request, Game $game): JsonResponse

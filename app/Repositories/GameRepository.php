@@ -12,8 +12,6 @@ use App\Models\Game;
  */
 class GameRepository extends BaseRepository
 {
-    private GameRepository $gameRepo;
-
     public function __construct() {}
 
     public function paginate(int $perPage)
@@ -24,5 +22,10 @@ class GameRepository extends BaseRepository
     public function create(array $data): ?Game
     {
         return Game::create($data);
+    }
+
+    public function find(int $id): ?Game
+    {
+        return Game::find($id);
     }
 }
