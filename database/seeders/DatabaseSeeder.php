@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use \App\Models\User;
+use \App\Models\Game;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,9 +16,16 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $firstUser = User::factory()->has(Game::factory()->count(3))
+            ->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'password' => 'asdf'
+            ]);
+
+        $firstUser->tokens()->create([
+            'name' => 'modio',
+            'token' => hash('sha256', 'asdf'),
+        ]);
     }
 }
