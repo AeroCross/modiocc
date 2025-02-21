@@ -55,11 +55,11 @@ class GameService
      */
     public function find(Request $request)
     {
-        validator($request->route()->parameters(), [
-            'id' => ['required'],
+        $validatedData = validator($request->route()->parameters(), [
+            'gameId' => ['required'],
         ])->validate();
 
-        return $this->gameRepository->find($request->id);
+        return $this->gameRepository->find($validatedData['gameId']);
     }
 
 
