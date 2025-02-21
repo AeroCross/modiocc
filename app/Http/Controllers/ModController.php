@@ -13,9 +13,7 @@ class ModController implements ModControllerInterface
 {
     private $modService;
 
-    public function __construct(ModService $modService)
-    {
-    }
+    public function __construct(ModService $modService) {}
 
     public function browse(Request $request, Game $game): JsonResponse
     {
