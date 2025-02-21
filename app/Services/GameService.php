@@ -56,8 +56,8 @@ class GameService
             return null;
         }
 
-        // Only allow the owner to update their own games
-        if ($game->user_id != $user->id) {
+        // Only the owner can update the game
+        if ($user->cannot('update', $game)) {
             return false;
         }
 
@@ -88,8 +88,8 @@ class GameService
             return null;
         }
 
-        // Only allow the owner to delete their own games
-        if ($game->user_id != $user->id) {
+        // Only the owner can delete their own games
+        if ($user->cannot('delete', $game)) {
             return false;
         }
 
