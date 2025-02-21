@@ -2,12 +2,20 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class GameTest extends TestCase
 {
+    use RefreshDatabase;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('db:seed');
+    }
+
     public function testBrowseSucceeds(): void
     {
         $this
@@ -27,10 +35,9 @@ class GameTest extends TestCase
 
     public function testCreateSucceedsWhileAuthenticated(): void
     {
-        // todo this endpoint must be secured by user authentication, modify the post call
-        //   below to include the required header or URL parameter to achieve that
         $this
-            ->post('games', [
+            ->asAuthorizedUser()
+            ->post('/api/games', [
                 'name' => 'Rogue Knight'
             ])
             ->assertStatus(Response::HTTP_CREATED)
