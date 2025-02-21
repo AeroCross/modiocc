@@ -18,13 +18,7 @@ class GameFactory extends Factory
     public function definition(): array
     {
         return [
-            // A string of 1 to 3 words in Title Case.
-            'name' => Str::title(
-                implode(" ", fake()->randomElements(
-                    fake()->words(3),
-                    null
-                ))
-            )
+            'name' => Str::title(fake()->unique()->word())
         ];
     }
 }
