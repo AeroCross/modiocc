@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('mods', function (Blueprint $table) {
             $table->id();
+
+            // TODO: onDelete?
+            $table->unsignedBigInteger('game_id');
+            $table->foreign('game_id')->references('id')->on('games');
+
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+
+            $table->string('name');
             $table->timestamps();
         });
     }
