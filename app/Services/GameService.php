@@ -20,12 +20,12 @@ class GameService
         $this->gameRepository = $gameRepository ?? new GameRepository;
     }
 
-    public function showAllGames(int $perPage = 10)
+    public function getAllPaginated(int $perPage = 10)
     {
         return $this->gameRepository->paginate($perPage);
     }
 
-    public function createGame(Request $request)
+    public function create(Request $request)
     {
         $user = $request->user();
         $validatedData = $request->validate([

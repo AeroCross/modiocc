@@ -25,7 +25,7 @@ class GameController extends Controller implements GameControllerInterface
     public function browse(Request $request): JsonResponse
     {
         return response()->json(
-            $this->gameService->showAllGames()
+            $this->gameService->getAllPaginated()
         );
     }
 
@@ -36,7 +36,7 @@ class GameController extends Controller implements GameControllerInterface
      */
     public function create(Request $request): JsonResponse
     {
-        $game = $this->gameService->createGame($request);
+        $game = $this->gameService->create($request);
 
         if ($game) {
             return response()->json($game, 201);
