@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Repositories\GameRepository;
+use Illuminate\Http\Request;
+
 /**
  * GameService
  *
@@ -10,5 +13,28 @@ namespace App\Services;
  */
 class GameService
 {
+    private GameRepository $gameRepository;
 
+    public function __construct(GameRepository $gameRepository = null)
+    {
+        $this->gameRepository = $gameRepository ?? new GameRepository;
+    }
+
+    public function showAllGames(int $perPage = 10)
+    {
+        return $this->gameRepository->paginate($perPage);
+    }
+
+    public function createGame(Request $request)
+    {
+        $user = $request->user();
+        $validatedData = $request->validate([
+            'name' => ['required', 'unique:App\Models\Game,name'],
+        ]);
+
+        return $this->gameRepository->create([
+            'user_id' => $user->id,
+            'name' => $validatedData['name']
+        ]);
+    }
 }
