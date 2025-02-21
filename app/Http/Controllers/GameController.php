@@ -20,6 +20,12 @@ class GameController extends Controller implements GameControllerInterface
         $this->gameRepository = $gameRepository ?? new GameRepository();
     }
 
+
+    /** Provides a paginated list of all games for authenticated and unauthenticated users.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function browse(Request $request): JsonResponse
     {
         // TODO: for some reason, Laravel isn't immediately converting this Eloquent model into a JSON response.
@@ -30,6 +36,11 @@ class GameController extends Controller implements GameControllerInterface
         );
     }
 
+    /** Creates a new game for the currently authenticated user.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function create(Request $request): JsonResponse
     {
         $user = $request->user();
