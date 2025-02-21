@@ -51,4 +51,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Game::class);
     }
+
+
+    /**
+     * The Mods that a user may have created.
+     */
+    public function mods(): HasMany
+    {
+        return $this->hasMany(Mod::class);
+    }
 }

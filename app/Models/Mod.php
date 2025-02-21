@@ -17,4 +17,13 @@ class Mod extends Model
     {
         return $this->belongsTo(Game::class);
     }
+
+
+    /**
+     * The user that created this mod
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
