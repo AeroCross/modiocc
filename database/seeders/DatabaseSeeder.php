@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use \App\Models\User;
 use \App\Models\Game;
+use \App\Models\Mod;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,7 +16,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // These are meant to be users that allow the test suite to run.
-        $firstUser = User::factory()->has(Game::factory()->count(3))
+        $firstUser = User::factory()
+            ->has(Game::factory()->count(3))
             ->create([
                 'name' => 'Test User A',
                 'email' => 'test_a@example.com',
@@ -27,7 +29,13 @@ class DatabaseSeeder extends Seeder
             'token' => hash('sha256', 'asdf'),
         ]);
 
-        $secondUser = User::factory()->has(Game::factory()->count(5))
+        Mod::factory()->count(10)->create([
+            'user_id' => $firstUser->id,
+            'game_id' => $firstUser->games->first()->id,
+        ]);
+
+        $secondUser = User::factory()
+            ->has(Game::factory()->count(5))
             ->create([
                 'name' => 'Test User B',
                 'email' => 'test_b@example.com',
@@ -37,6 +45,11 @@ class DatabaseSeeder extends Seeder
         $secondUser->tokens()->create([
             'name' => 'mytoken',
             'token' => hash('sha256', 'qwerty'),
+        ]);
+
+        Mod::factory()->count(5)->create([
+            'user_id' => $secondUser->id,
+            'game_id' => $secondUser->games->first()->id,
         ]);
     }
 }
