@@ -42,7 +42,7 @@ class GameController extends Controller implements GameControllerInterface
             return response()->json($game, 201);
         }
 
-        return response()->json(null, 422); // This should be unreachable due to the validate() call
+        return response()->json(null, 422);
     }
 
     public function read(Request $request, Game $game): JsonResponse
