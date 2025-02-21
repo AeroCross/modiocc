@@ -12,13 +12,13 @@ class GameController extends Controller implements GameControllerInterface
 {
     private GameService $gameService;
 
-    public function __construct(GameService $gameService)
-    {
-    }
+    public function __construct(GameService $gameService) {}
 
     public function browse(Request $request): JsonResponse
     {
-        // TODO: Implement browse() method.
+        // TODO: for some reason, Laravel isn't immediately converting this Eloquent model into a JSON response.
+        // It's not the Sanctum middleware, and it's not the custom middleware either ???
+        return response()->json(Game::paginate(10));
     }
 
     public function create(Request $request): JsonResponse
