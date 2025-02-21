@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Models\Game;
+
 /**
  * GameRepository
  *
@@ -12,7 +14,15 @@ class GameRepository extends BaseRepository
 {
     private GameRepository $gameRepo;
 
-    public function __construct(GameRepository $gameRepo)
+    public function __construct() {}
+
+    public function paginate(int $perPage)
     {
+        return Game::paginate($perPage);
+    }
+
+    public function create(array $data): ?Game
+    {
+        return Game::create($data);
     }
 }
