@@ -72,9 +72,9 @@ class GameController extends Controller implements GameControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $gameId): JsonResponse
     {
-        $game = $this->gameService->update($id, $request);
+        $game = $this->gameService->update($gameId, $request);
 
         if ($game === null) {
             return response()->json(['message' => 'Not found.'], 404);
@@ -95,9 +95,9 @@ class GameController extends Controller implements GameControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function delete(Request $request, string $id): JsonResponse
+    public function delete(Request $request, string $gameId): JsonResponse
     {
-        $game = $this->gameService->delete($id, $request);
+        $game = $this->gameService->delete($gameId, $request);
 
         if ($game === null) {
             return response()->json(['message' => 'Not found.'], 404);

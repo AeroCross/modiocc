@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
-use App\Models\Game;
+use App\Http\Controllers\ModController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,11 +29,19 @@ Route::post('/tokens/create', function (Request $request) {
 /**
  * Authenticated routes
  */
-Route::middleware('auth:sanctum')->controller(GameController::class)->group(function () {
-    Route::post('/games', 'create')->name('create-game');
-    Route::patch('/games/{id}', 'update')->name('update-game');
-    Route::delete('/games/{id}', 'delete')->name('delete-game');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/games', [GameController::class, 'create'])->name('create-game');
+    Route::patch('/games/{gameId}', [GameController::class, 'update'])->name('update-game');
+    Route::delete('/games/{gameId}', [GameController::class, 'delete'])->name('delete-game');
+
+    Route::prefix('/games/{gameId}')->group(function () {
+        Route::get('/mods', [ModController::class, 'browse'])->name('browse-mods');
+        Route::middleware('mod.belongsToGame')->group(function () {
+            Route::get('/mods/{modId}', [ModController::class, 'read'])->name('show-mod');
+        });
+    });
 });
+
 
 /**
  * Unauthenticated routes
@@ -42,10 +50,10 @@ Route::middleware('auth:sanctum')->controller(GameController::class)->group(func
  * The instructions say "any user", not "any authenticated user", so I'm rolling with this since it makes more practical
  * sense to want anyone to browse both the games available and their mods for them to subscribe.
  */
-Route::get('/games', [GameController::class, 'browse'])->name('browse');
+Route::get('/games', [GameController::class, 'browse'])->name('browse-games');
 
 /**
- * We're using "id" as the parameter here instead of "game" to avoid Laravel's implicit model binding.
+ * We're using "gameId" as the parameter here instead of "game" to avoid Laravel's implicit model binding.
  * See: https://laravel.com/docs/11.x/routing#implicit-binding
  *
  * The reason I'm doing this is to be able to control better where the "missing" logic lies. Ideally, this resides
@@ -54,4 +62,4 @@ Route::get('/games', [GameController::class, 'browse'])->name('browse');
  * Using implicit bindings is a lot simpler, but it does break our pattern. This forces us to change the Interface of
  * GameController, but it sounds like a reasonable tradeoff for consistency and encapsulation.
  */
-Route::get('/games/{id}', [GameController::class, 'read'])->name('find-game');
+Route::get('/games/{gameId}', [GameController::class, 'read'])->name('show-game');
