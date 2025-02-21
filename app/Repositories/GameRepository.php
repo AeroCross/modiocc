@@ -29,18 +29,14 @@ class GameRepository extends BaseRepository
         return Game::find($id);
     }
 
-    public function update(string $id, array $data)
+    public function update(Game $game, array $data): ?Game
     {
-        $game = Game::find($id);
         $game->update($data);
-
         return $game->refresh();
     }
 
-
-    public function delete(string $id)
+    public function delete(Game $game): int
     {
-        $game = Game::find($id);
         return $game->delete();
     }
 }

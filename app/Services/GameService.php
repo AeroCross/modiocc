@@ -68,12 +68,7 @@ class GameService
 
         $validatedData = $request->validate($this->upsertValidationRules);
 
-        // If we decide that we want to allow to update more fields, we can change this.
-        // Otherwise, we make sure that the only thing we can update is the name.
-
-        // TODO: since we already have the model fetched, can we use it instead?
-        // This would potentially require the gameRepository to return an instance of itself to chain `->update()`
-        return $this->gameRepository->update($id, [
+        return $this->gameRepository->update(game: $game, data: [
             'name' => $validatedData['name']
         ]);
     }
@@ -93,6 +88,6 @@ class GameService
             return false;
         }
 
-        return $this->gameRepository->delete($id);
+        return $this->gameRepository->delete($game);
     }
 }
