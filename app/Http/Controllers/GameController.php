@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Contracts\GameControllerInterface;
-use App\Models\Game;
+use App\Http\Resources\GameCollection;
+use App\Http\Resources\GameResource;
 use App\Services\GameService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,11 +21,11 @@ class GameController extends Controller implements GameControllerInterface
     /** Provides a paginated list of all games for authenticated and unauthenticated users.
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return GameCollection
      */
-    public function browse(Request $request): JsonResponse
+    public function browse(Request $request): GameCollection
     {
-        return response()->json(
+        return new GameCollection(
             $this->gameService->getAllPaginated()
         );
     }
@@ -39,7 +40,9 @@ class GameController extends Controller implements GameControllerInterface
         $game = $this->gameService->create($request);
 
         if ($game) {
-            return response()->json($game, 201);
+            return (new GameResource($game))
+                ->response()
+                ->setStatusCode(201);
         }
 
         return response()->json(null, 422);
@@ -57,10 +60,10 @@ class GameController extends Controller implements GameControllerInterface
         $game = $this->gameService->find($request);
 
         if ($game) {
-            return response()->json($game);
+            return (new GameResource($game))->response();
         }
 
-        return response()->json(null, 204);
+        return response()->json(null, 404);
     }
 
     /**
@@ -81,7 +84,7 @@ class GameController extends Controller implements GameControllerInterface
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        return response()->json($game);
+        return (new GameResource($game))->response();
     }
 
     /**
@@ -105,7 +108,7 @@ class GameController extends Controller implements GameControllerInterface
         }
 
         if ($game > 0) {
-            return response()->json(null, 204);
+            return response()->json(['message' => 'Success.'], 204);
         }
 
         return response()->json(null, 500);

@@ -16,14 +16,16 @@ class GameTest extends TestCase
             ->getJson('/api/games/')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'current_page',
                 'data' => [[ // as many games as determined by the pagination argument
                     'id',
                     'name',
                     'user_id',
                     'created_at',
                     'updated_at'
-                ]]
+                ]],
+                'meta' => [
+                    'current_page'
+                ]
             ]);
     }
 
@@ -36,11 +38,13 @@ class GameTest extends TestCase
             ])
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    'id',
+                    'name',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
             ])
             ->assertJsonFragment([
                 'name' => 'Rogue Knight'
@@ -53,11 +57,13 @@ class GameTest extends TestCase
             ->getJson('/api/games/1')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    'id',
+                    'name',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
             ]);
     }
 
@@ -79,11 +85,13 @@ class GameTest extends TestCase
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    'id',
+                    'name',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
             ])
             ->assertJsonFragment([
                 'name' => 'Rogue Knight Remastered'
