@@ -26,10 +26,12 @@ Route::post('/tokens/create', function (Request $request) {
 });
 
 // Authenticated routes
-// TODO: we do not want all the controller routes to be defined here, we're just overwriting them at the end atm
 Route::middleware('auth:sanctum')->controller(GameController::class)->group(function () {
-    Route::get('/games', 'browse')->name('browse');
+    Route::post('/games', 'create')->name('create-game');
 });
 
 // Unauthenticated routes
+// Note: Under the assumption that the `/browse` endpoint is for end-users, it makes sense
+// for them not to be behind authentication, since you want them to browse both the games available and their mods for
+// them to subscribe.
 Route::get('/games', [GameController::class, 'browse'])->name('browse');
