@@ -12,6 +12,13 @@ class Game extends Model
     use HasFactory;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = ['name', 'user_id'];
+
+    /**
      * The user who owns this game.
      */
     public function user(): BelongsTo
