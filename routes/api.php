@@ -36,9 +36,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/games/{gameId}')->group(function () {
         Route::get('/mods', [ModController::class, 'browse'])->name('browse-mods');
-        Route::middleware('mod.belongsToGame')->group(function () {
-            Route::get('/mods/{modId}', [ModController::class, 'read'])->name('show-mod');
-        });
     });
 });
 
@@ -50,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
  * The instructions say "any user", not "any authenticated user", so I'm rolling with this since it makes more practical
  * sense to want anyone to browse both the games available and their mods for them to subscribe.
  */
-Route::get('/games', [GameController::class, 'browse'])->name('browse-games');
 
 /**
  * We're using "gameId" as the parameter here instead of "game" to avoid Laravel's implicit model binding.
@@ -62,4 +58,9 @@ Route::get('/games', [GameController::class, 'browse'])->name('browse-games');
  * Using implicit bindings is a lot simpler, but it does break our pattern. This forces us to change the Interface of
  * GameController, but it sounds like a reasonable tradeoff for consistency and encapsulation.
  */
+Route::get('/games', [GameController::class, 'browse'])->name('browse-games');
 Route::get('/games/{gameId}', [GameController::class, 'read'])->name('show-game');
+
+Route::middleware('mod.belongsToGame')->prefix('/games/{gameId}')->group(function () {
+    Route::get('/mods/{modId}', [ModController::class, 'read'])->name('show-mod');
+});
