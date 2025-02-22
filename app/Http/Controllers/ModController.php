@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Contracts\ModControllerInterface;
+use App\Http\Resources\ModCollection;
 use App\Http\Resources\ModResource;
 use App\Models\Game;
 use App\Models\Mod;
@@ -14,9 +15,11 @@ class ModController implements ModControllerInterface
 {
     public function __construct(protected ModService $modService) {}
 
-    public function browse(Request $request, Game $game): JsonResponse
+    public function browse(Request $request): ModCollection
     {
-        // TODO: Implement browse() method.
+        return new ModCollection(
+            $this->modService->getAllPaginated($request)
+        );
     }
 
     /**

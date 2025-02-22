@@ -12,4 +12,9 @@ class ModRepository extends BaseRepository
     {
         return Mod::find($id);
     }
+
+    public function paginate(string $gameId, int $perPage)
+    {
+        return Mod::where('game_id', $gameId)->paginate($perPage);
+    }
 }

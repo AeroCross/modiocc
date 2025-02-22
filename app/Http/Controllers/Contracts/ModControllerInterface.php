@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Contracts;
 
+use App\Http\Resources\ModCollection;
 use App\Models\Game;
 use App\Models\Mod;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,7 @@ interface ModControllerInterface
      * @param Game $game
      * @return JsonResponse
      */
-    public function browse(Request $request, Game $game): JsonResponse;
+    public function browse(Request $request): ModCollection;
 
     /**
      * Create a mod.

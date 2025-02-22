@@ -34,11 +34,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/games/{gameId}', [GameController::class, 'update'])->name('update-game');
     Route::delete('/games/{gameId}', [GameController::class, 'delete'])->name('delete-game');
 
-    Route::prefix('/games/{gameId}')->group(function () {
-        Route::get('/mods', [ModController::class, 'browse'])->name('browse-mods');
+    Route::middleware('mod.belongsToGame')->prefix('/games/{gameId}')->group(function () {
+        Route::post('/mods', [ModController::class, 'create'])->name('create-mod');
     });
 });
-
 
 /**
  * Unauthenticated routes
@@ -61,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/games', [GameController::class, 'browse'])->name('browse-games');
 Route::get('/games/{gameId}', [GameController::class, 'read'])->name('show-game');
 
-Route::middleware('mod.belongsToGame')->prefix('/games/{gameId}')->group(function () {
-    Route::get('/mods/{modId}', [ModController::class, 'read'])->name('show-mod');
+Route::prefix('/games/{gameId}')->group(function () {
+    Route::get('/mods', [ModController::class, 'browse'])->name('browse-mods');
+    Route::get('/mods/{modId}', [ModController::class, 'read'])->name('show-mod')->middleware('mod.belongsToGame');
 });

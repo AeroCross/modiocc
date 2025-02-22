@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Game;
+use App\Models\Mod;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -13,27 +14,24 @@ class ModTest extends TestCase
 
     public function testBrowseSucceeds(): void
     {
-        // todo update this test to assert that a paginated response was given.
-        //  in order for this test to pass, you will need to seed at least 1 game
-        //  and 1 mod
-        $game = Game::inRandomOrder()->first();
-        $mod = Game::query()->where('game', '=', $game->id)->first();
+        $mod = Mod::first();
 
         $this
-            ->get('games/' . $game->id . '/mods')
+            ->getJson('/api/games/' . $mod->game_id . '/mods')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'game_id',
-                'user_id',
-                'created_at',
-                'updated_at'
-            ])
-            ->assertJsonFragment([
-                'id' => $mod->id
-                // todo assert game is valid
-                // todo assert user is valid
+                'data' => [[
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]],
+                'meta' => [
+                    'current_page',
+                    'last_page'
+                ]
             ]);
     }
 

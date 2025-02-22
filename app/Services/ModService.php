@@ -7,14 +7,27 @@ use Illuminate\Http\Request;
 
 /**
  * Business logic for Mod management.
- *
- * @param GameRepository Optional. An instance of a ModRepository. Creates a new instance on construction.
  */
 class ModService
 {
     public function __construct(protected ModRepository $modRepository) {}
 
-    /** Finds a Mod.
+    /** Fetches all mods with pagination.
+     *
+     * @param Request $request
+     * @param integer $perPage
+     * @return void
+     */
+    public function getAllPaginated(Request $request, int $perPage = 10)
+    {
+        $validatedData = validator($request->route()->parameters(), [
+            'gameId' => ['required'],
+        ])->validate();
+
+        return $this->modRepository->paginate($validatedData['gameId'], $perPage);
+    }
+
+    /** Finds a mod.
      *
      * @param Request $request
      * @return void
