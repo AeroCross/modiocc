@@ -43,7 +43,6 @@ class GameController extends Controller implements GameControllerInterface
         return response()->json(null, 422);
     }
 
-
     /**
      * Gets the data of a single game.
      *

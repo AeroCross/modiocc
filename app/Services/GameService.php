@@ -20,7 +20,6 @@ class GameService
         $this->gameRepository = $gameRepository ?? new GameRepository;
     }
 
-
     /** Fetches all games with pagination.
      *
      * @param integer $perPage
@@ -30,7 +29,6 @@ class GameService
     {
         return $this->gameRepository->paginate($perPage);
     }
-
 
     /** Create a Game entry.
      *
@@ -61,7 +59,6 @@ class GameService
 
         return $this->gameRepository->find($validatedData['gameId']);
     }
-
 
     /** Update an instance of a game.
      *
@@ -95,7 +92,6 @@ class GameService
             'name' => $validatedData['name']
         ]);
     }
-
 
     /** Hard deletes an instance of a Game.
      *
