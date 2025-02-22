@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 
 /**
  * Business logic for Game management.
- *
- * @param GameRepository Optional. An instance of a GameRepository. Creates a new instance on construction.
  */
 class GameService
 {
