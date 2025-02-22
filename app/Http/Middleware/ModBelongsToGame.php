@@ -16,7 +16,7 @@ class ModBelongsToGame extends Middleware
         $game = $this->gameRepository->find($request->route()->parameter('gameId'));
         $mod = $this->modRepository->find($request->route()->parameter('modId'));
 
-        if ($game->id != $mod->game->id) {
+        if ((empty($game) || empty($mod)) || $game->id != $mod->game->id) {
             return response()->json(['message' => 'Not found.'], 404);
         }
 
