@@ -11,12 +11,7 @@ use Illuminate\Http\Request;
 
 class GameController extends Controller implements GameControllerInterface
 {
-    private GameService $gameService;
-
-    public function __construct(GameService $gameService)
-    {
-        $this->gameService = $gameService ?? new GameService();
-    }
+    public function __construct(protected GameService $gameService) {}
 
     /** Provides a paginated list of all games for authenticated and unauthenticated users.
      *
