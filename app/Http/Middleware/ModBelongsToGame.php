@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Repositories\GameRepository;
 use App\Repositories\ModRepository;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
-use Illuminate\Http\Request;
 
 class ModBelongsToGame extends Middleware
 {
@@ -13,10 +12,17 @@ class ModBelongsToGame extends Middleware
 
     public function handle($request, \Closure $next, ...$guards)
     {
-        $game = $this->gameRepository->find($request->route()->parameter('gameId'));
-        $mod = $this->modRepository->find($request->route()->parameter('modId'));
+        $gameId = $request->route()->parameter('gameId') ?? $request->input('gameId');
+        $modId = $request->route()->parameter('modId') ?? $request->input('modId');
 
-        if ((empty($game) || empty($mod)) || $game->id != $mod->game->id) {
+        if ((empty($game) || empty($mod))) {
+            return response()->json(['message' => 'gameId and modId required'], 400);
+        }
+
+        $game = $this->gameRepository->find($gameId);
+        $mod = $this->modRepository->find($modId);
+
+        if (($game->id != $mod->game->id)) {
             return response()->json(['message' => 'Not found.'], 404);
         }
 
