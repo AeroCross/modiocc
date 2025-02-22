@@ -19,7 +19,7 @@ interface ModControllerInterface
      * @param Game $game
      * @return JsonResponse
      */
-    public function browse(Request $request, Game $game) : JsonResponse;
+    public function browse(Request $request, Game $game): JsonResponse;
 
     /**
      * Create a mod.
@@ -38,7 +38,7 @@ interface ModControllerInterface
      * @param Mod $mod
      * @return JsonResponse
      */
-    public function read(Request $request, Game $game, Mod $mod) : JsonResponse;
+    public function read(Request $request, string $gameId, string $modId): JsonResponse;
 
     /**
      * Update a mod.
@@ -48,7 +48,7 @@ interface ModControllerInterface
      * @param Mod $mod
      * @return JsonResponse
      */
-    public function update(Request $request, Game $game, Mod $mod) : JsonResponse;
+    public function update(Request $request, Game $game, Mod $mod): JsonResponse;
 
     /**
      * Delete a mod.
@@ -58,5 +58,5 @@ interface ModControllerInterface
      * @param Mod $mod
      * @return JsonResponse
      */
-    public function delete(Request $request, Game $game, Mod $mod) : JsonResponse;
+    public function delete(Request $request, Game $game, Mod $mod): JsonResponse;
 }
