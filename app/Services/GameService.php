@@ -10,13 +10,9 @@ use Illuminate\Http\Request;
  */
 class GameService
 {
-    private GameRepository $gameRepository;
     private array $upsertValidationRules = ['name' => ['required', 'unique:App\Models\Game,name']];
 
-    public function __construct(GameRepository $gameRepository = null)
-    {
-        $this->gameRepository = $gameRepository ?? new GameRepository;
-    }
+    public function __construct(protected GameRepository $gameRepository) {}
 
     /** Fetches all games with pagination.
      *
