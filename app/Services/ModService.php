@@ -12,7 +12,7 @@ class ModService
 {
     public function __construct(protected ModRepository $modRepository) {}
 
-    /** Fetches all mods with pagination.
+    /** Fetches all mods for a given game with pagination.
      *
      * @param Request $request
      * @param integer $perPage
