@@ -37,27 +37,26 @@ class ModTest extends TestCase
 
     public function testCreateSucceedsWhileAuthenticated(): void
     {
-        $game = Game::inRandomOrder()->first();
-
-        // todo this endpoint must be secured by user authentication, modify the post call
-        //   below to include the required header or URL parameter to achieve that
         $this
-            ->post('games/' . $game->id . '/mods', [
+            ->asAuthorizedUser()
+            ->postJson('/api/games/1/mods', [
                 'name' => 'Lightsaber'
             ])
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'game_id',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
             ])
             ->assertJsonFragment([
-                'name' => 'Lightsaber'
-                // todo assert game is valid
-                // todo assert user is valid
+                'name' => 'Lightsaber',
+                'game_id' => 1,
+                'user_id' => 1,
             ]);
     }
 
@@ -87,10 +86,8 @@ class ModTest extends TestCase
 
     public function testCreateFailsWhileUnauthenticated(): void
     {
-        $game = Game::inRandomOrder()->first();
-
         $this
-            ->postJson('/api/games/' . $game->id . '/mods', [
+            ->postJson('/api/games/1/mods', [
                 'name' => 'Lightsaber'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);

@@ -34,7 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/games/{gameId}', [GameController::class, 'update'])->name('update-game');
     Route::delete('/games/{gameId}', [GameController::class, 'delete'])->name('delete-game');
 
-    Route::middleware('mod.belongsToGame')->prefix('/games/{gameId}')->group(function () {
+    Route::prefix('/games/{gameId}')->group(function () {
         Route::post('/mods', [ModController::class, 'create'])->name('create-mod');
     });
 });

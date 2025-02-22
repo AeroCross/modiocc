@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
  */
 class ModService
 {
+    private array $upsertValidationRules = [
+        'name' => ['required'],
+        'gameId' => ['required', 'exists:\App\Models\Game,id']
+    ];
+
     public function __construct(protected ModRepository $modRepository) {}
 
     /** Fetches all mods for a given game with pagination.
@@ -40,5 +45,29 @@ class ModService
         ])->validate();
 
         return $this->modRepository->find($validatedData['modId']);
+    }
+
+    /** Create a Mod entry for a given game.
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function create(Request $request)
+    {
+        $user = $request->user();
+        $inputData =  array_merge($request->input(), $request->route()->parameters());
+
+        $validatedData = validator($inputData, $this->upsertValidationRules)->validate();
+
+        if ($this->modRepository->exists($validatedData['name'], $validatedData['gameId'])) {
+            return false;
+        }
+
+        // TODO: There's probably a better way to go about this without having to cast query params to int.
+        return $this->modRepository->create([
+            'user_id' => $user->id,
+            'game_id' => (int)$validatedData['gameId'],
+            'name' => $validatedData['name']
+        ]);
     }
 }

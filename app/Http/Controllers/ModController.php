@@ -26,12 +26,24 @@ class ModController implements ModControllerInterface
      * Create a mod.
      *
      * @param Request $request
-     * @param Game $game
      * @return JsonResponse
      */
-    public function create(Request $request, Game $game)
+    public function create(Request $request)
     {
-        // TODO: Implement create() method.
+        $mod = $this->modService->create($request);
+
+        // Already exists
+        if ($mod === false) {
+            return response()->json(['message' => 'Mod already exists for game.'], 403);
+        }
+
+        if ($mod) {
+            return (new ModResource($mod))
+                ->response()
+                ->setStatusCode(201);
+        }
+
+        return response()->json(null, 422);
     }
 
     public function read(Request $request, string $gameId, string $modId): JsonResponse

@@ -17,4 +17,14 @@ class ModRepository extends BaseRepository
     {
         return Mod::where('game_id', $gameId)->paginate($perPage);
     }
+
+    public function create(array $data): ?Mod
+    {
+        return Mod::create($data);
+    }
+
+    public function exists(string $name, int $gameId = null)
+    {
+        return Mod::where('name', $name)->where('game_id', $gameId)->get()->isNotEmpty();
+    }
 }

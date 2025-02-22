@@ -11,6 +11,13 @@ class Mod extends Model
     use HasFactory;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = ['name', 'user_id', 'game_id'];
+
+    /**
      * The game this mod is made for.
      */
     public function game(): BelongsTo

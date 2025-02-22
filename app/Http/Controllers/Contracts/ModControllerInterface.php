@@ -26,10 +26,9 @@ interface ModControllerInterface
      * Create a mod.
      *
      * @param Request $request
-     * @param Game $game
      * @return JsonResponse
      */
-    public function create(Request $request, Game $game);
+    public function create(Request $request);
 
     /**
      * Read/view a mod.

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
 
             $table->string('name');
+            $table->unique(['name', 'game_id'], 'unique_name_per_game');
             $table->timestamps();
         });
     }
