@@ -14,6 +14,7 @@ class ModTest extends TestCase
 {
     use RefreshDatabase;
 
+    // GET /mods
     public function testBrowseSucceeds(): void
     {
         $user = User::factory()->create();
@@ -51,36 +52,6 @@ class ModTest extends TestCase
         $this
             ->getJson('/api/games/' . $game->id + 1 . '/mods')
             ->assertStatus(Response::HTTP_NOT_FOUND);
-    }
-
-    public function testCreateSucceedsWhileAuthenticated(): void
-    {
-        $user = User::factory()->create();
-        $game = Game::factory()->for($user)->create();
-        $mod = Mod::factory()->for($user)->for($game)->create();
-
-        Sanctum::actingAs($user);
-
-        $this
-            ->postJson('/api/games/' . $mod->game->id . '/mods', [
-                'name' => 'Lightsaber'
-            ])
-            ->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'name',
-                    'game_id',
-                    'user_id',
-                    'created_at',
-                    'updated_at'
-                ]
-            ])
-            ->assertJsonFragment([
-                'name' => 'Lightsaber',
-                'game_id' => $mod->game->id,
-                'user_id' => $mod->user->id,
-            ]);
     }
 
     public function testReadSucceeds(): void
@@ -127,6 +98,36 @@ class ModTest extends TestCase
         $this
             ->getJson('/api/games/' . $games[0]->id . '/mods/' . $games[1]->mods->first()->id)
             ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testCreateSucceedsWhileAuthenticated(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+        $mod = Mod::factory()->for($user)->for($game)->create();
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->postJson('/api/games/' . $mod->game->id . '/mods', [
+                'name' => 'Lightsaber'
+            ])
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'Lightsaber',
+                'game_id' => $mod->game->id,
+                'user_id' => $mod->user->id,
+            ]);
     }
 
     public function testCreateFailsWhileUnauthenticated(): void

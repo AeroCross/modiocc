@@ -13,6 +13,7 @@ class GameTest extends TestCase
 {
     use RefreshDatabase;
 
+    // GET /games
     public function testBrowseSucceeds(): void
     {
         $user = User::factory()->create();
@@ -40,16 +41,7 @@ class GameTest extends TestCase
             ]);
     }
 
-    public function testReadFailsWhenGameDoesNotExist()
-    {
-        $user = User::factory()->create();
-        $game = Game::factory()->for($user)->create();
-
-        $this
-            ->getJson('/api/games/' . $game->id + 1)
-            ->assertStatus(Response::HTTP_NOT_FOUND);
-    }
-
+    // POST /games
     public function testCreateSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
@@ -74,6 +66,16 @@ class GameTest extends TestCase
             ]);
     }
 
+    public function testCreateFailsWhileUnauthenticated(): void
+    {
+        $this
+            ->postJson('/api/games', [
+                'name' => 'Rogue Knight'
+            ])
+            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
+
+    // GET /games/{gameId}
     public function testReadSucceeds(): void
     {
         $game = Game::factory()->for(User::factory())->create();
@@ -92,25 +94,17 @@ class GameTest extends TestCase
             ]);
     }
 
-    public function testReadNotFound(): void
+    public function testReadFailsWhenGameDoesNotExist()
     {
-        $game = Game::factory()->for(User::factory())->create();
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
 
         $this
             ->getJson('/api/games/' . $game->id + 1)
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
-
-    public function testCreateFailsWhileUnauthenticated(): void
-    {
-        $this
-            ->postJson('/api/games', [
-                'name' => 'Rogue Knight'
-            ])
-            ->assertStatus(Response::HTTP_UNAUTHORIZED);
-    }
-
+    // PATCH /games/{gameId}
     public function testUpdateSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
@@ -135,6 +129,22 @@ class GameTest extends TestCase
             ->assertJsonFragment([
                 'name' => 'Rogue Knight Remastered'
             ]);
+    }
+
+    public function testUpdateSucceedsWhenUpdatingWithSameName(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create([
+            'name' => 'Rogue Knight Remastered'
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $game->id, [
+                'name' => 'Rogue Knight Remastered'
+            ])
+            ->assertStatus(Response::HTTP_OK);
     }
 
     public function testUpdateFailsWhileAuthenticatedWithDifferentOwner(): void
@@ -164,22 +174,6 @@ class GameTest extends TestCase
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testUpdateSucceedsWhenUpdatingWithSameName(): void
-    {
-        $user = User::factory()->create();
-        $game = Game::factory()->for($user)->create([
-            'name' => 'Rogue Knight Remastered'
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $this
-            ->patchJson('/api/games/' . $game->id, [
-                'name' => 'Rogue Knight Remastered'
-            ])
-            ->assertStatus(Response::HTTP_OK);
-    }
-
     public function testUpdateFailsWhenNameAlreadyExists(): void
     {
         $user = User::factory()->create();
@@ -199,6 +193,7 @@ class GameTest extends TestCase
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    // DELETE /games/{gameId}
     public function testDeleteSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
