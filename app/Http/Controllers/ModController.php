@@ -82,17 +82,17 @@ class ModController implements ModControllerInterface
      */
     public function delete(Request $request, string $gameId, string $modId): JsonResponse
     {
-        $game = $this->modService->delete($gameId, $request);
+        $mod = $this->modService->delete($modId, $request);
 
-        if ($game === null) {
+        if ($mod === null) {
             return response()->json(['message' => 'Not found.'], 404);
         }
 
-        if ($game === false) {
+        if ($mod === false) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if ($game > 0) {
+        if ($mod > 0) {
             return response()->json(['message' => 'Success.'], 204);
         }
 
