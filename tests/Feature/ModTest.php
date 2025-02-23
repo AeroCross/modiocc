@@ -104,6 +104,17 @@ class ModTest extends TestCase
             ]);
     }
 
+    public function testReadFailsWhenGameDoesNotExist(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+        $mod = Mod::factory()->for($user)->for($game)->create();
+
+        $this
+            ->getJson('/api/games/' . $mod->game->id + 1 . '/mods/' . $mod->id)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
     public function testReadFailsWhenModDoesNotBelongToGame(): void
     {
         $user = User::factory();
