@@ -54,6 +54,7 @@ class ModTest extends TestCase
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
+    // GET /mods/{modId}
     public function testReadSucceeds(): void
     {
         $user = User::factory()->create();
@@ -100,6 +101,7 @@ class ModTest extends TestCase
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
+    // POST /mods
     public function testCreateSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
@@ -146,6 +148,7 @@ class ModTest extends TestCase
         ]);
     }
 
+    // PATCH /mods/{modId}
     public function testUpdateSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
@@ -193,6 +196,7 @@ class ModTest extends TestCase
         ]);
     }
 
+    // DELETE /mods/{modId}
     public function testDeleteSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();
