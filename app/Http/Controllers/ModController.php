@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Contracts\ModControllerInterface;
 use App\Http\Resources\ModCollection;
 use App\Http\Resources\ModResource;
-use App\Models\Game;
-use App\Models\Mod;
 use App\Services\ModService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,9 +49,25 @@ class ModController implements ModControllerInterface
         return (new ModResource($this->modService->find($request)))->response();
     }
 
-    public function update(Request $request, Game $game, Mod $mod): JsonResponse
+    /**
+     * Updates the data of a single game.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request, string $gameId, string $modId): JsonResponse
     {
-        // TODO: Implement update() method.
+        $mod = $this->modService->update($request, $modId);
+
+        if ($mod === null) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        if ($mod === false) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        return (new ModResource($mod))->response();
     }
 
     /**

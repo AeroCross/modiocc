@@ -95,47 +95,31 @@ class ModTest extends TestCase
 
     public function testUpdateSucceedsWhileAuthenticated(): void
     {
-        // todo again create the game, include the auth.
-        $response = $this->post('games', [
-            'name' => 'Rogue Knight'
-        ])->assertStatus(Response::HTTP_CREATED);
-
-        // todo create the mod, include the auth.
-        $response = $this->post('games/' . $response->json('id') . '/mods', [
-            'name' => 'Lightsaber'
-        ])->assertStatus(Response::HTTP_CREATED);
-
-        // todo update the game, include the auth.
         $this
-            ->put('games/' . $mod->id . '/mods/' . $game->id, [
+            ->asAuthorizedUser()
+            ->patchJson('/api/games/1/mods/1', [
                 'name' => 'Lightsabers (Full set)'
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'game_id',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
             ])
             ->assertJsonFragment([
                 'name' => 'Lightsabers (Full set)'
-                // todo assert game is valid
-                // todo assert user is valid
             ]);
     }
 
     public function testUpdateFailsWhileUnauthenticated(): void
     {
-        // todo again create the game, include VALID auth here, just to create the game successfully.
-        $response = $this->post('games', [
-            'name' => 'Rogue Knight'
-        ]);
-
-        // this however should fail with 401 Unauthorized, as expected
         $this
-            ->put('games/' . $response->json('id') . '/mods/' . $mod->id, [
+            ->patchJson('/api/games/1/mods/1', [
                 'name' => 'Lightsabers (Full set)'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);

@@ -32,4 +32,10 @@ class ModRepository extends BaseRepository
     {
         return $mod->delete();
     }
+
+    public function update(Mod $mod, array $data): ?Mod
+    {
+        $mod->update($data);
+        return $mod->refresh();
+    }
 }

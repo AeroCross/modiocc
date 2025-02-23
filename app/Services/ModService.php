@@ -10,11 +10,6 @@ use Illuminate\Http\Request;
  */
 class ModService
 {
-    private array $upsertValidationRules = [
-        'name' => ['required'],
-        'gameId' => ['required', 'exists:\App\Models\Game,id']
-    ];
-
     public function __construct(protected ModRepository $modRepository) {}
 
     /** Fetches all mods for a given game with pagination.
@@ -57,7 +52,10 @@ class ModService
         $user = $request->user();
         $inputData =  array_merge($request->input(), $request->route()->parameters());
 
-        $validatedData = validator($inputData, $this->upsertValidationRules)->validate();
+        $validatedData = validator($inputData, [
+            'name' => ['required'],
+            'gameId' => ['required', 'exists:\App\Models\Game,id']
+        ])->validate();
 
         if ($this->modRepository->exists($validatedData['name'], $validatedData['gameId'])) {
             return false;
@@ -93,5 +91,40 @@ class ModService
         }
 
         return $this->modRepository->delete($mod);
+    }
+
+    /** Update an instance of a mod.
+     *
+     * @param integer $id
+     * @param Request $request
+     * @return void
+     */
+    public function update(Request $request, string $id)
+    {
+        $user = $request->user();
+        $mod = $this->modRepository->find($id);
+
+        // Not found
+        if ($mod === null) {
+            return null;
+        }
+
+        // Only the owner can update the game
+        if ($user->cannot('update', $mod)) {
+            return false;
+        }
+
+        // If we want to update with the same name, noop
+        if ($mod->name === $request->input('name')) {
+            return $mod;
+        }
+
+        $validatedData = $request->validate([
+            'name' => ['required']
+        ]);
+
+        return $this->modRepository->update(mod: $mod, data: [
+            'name' => $validatedData['name']
+        ]);
     }
 }
