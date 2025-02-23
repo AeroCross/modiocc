@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Game;
 use App\Models\Mod;
 use App\Models\User;
+use App\Services\ModService;
 use Illuminate\Http\Response;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -141,6 +142,8 @@ class ModTest extends TestCase
                 'game_id' => $mod->game->id,
                 'user_id' => $mod->user->id,
             ]);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Lightsaber']);
     }
 
     public function testCreateSucceedsWhenModNameExistsForAnotherGame(): void
@@ -172,6 +175,8 @@ class ModTest extends TestCase
                 'game_id' => $games[1]->id,
                 'user_id' => $user->id,
             ]);
+
+        $this->assertEquals(2, Mod::where('name', 'Faster Walk Speed')->count());
     }
 
     public function testCreateSucceedsWhenAuthenticatedUserDoesNotOwnGame(): void
@@ -203,6 +208,8 @@ class ModTest extends TestCase
                 'game_id' => $game->id,
                 'user_id' => $nonOwner->id,
             ]);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Satisfactorio']);
     }
 
     public function testCreateFailsWhileUnauthenticated(): void
@@ -238,6 +245,8 @@ class ModTest extends TestCase
                 'name' => 'Krastorio 2'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
+
+        $this->assertEquals(1, Mod::where('name', 'Krastorio 2')->count());
     }
 
     // PATCH /mods/{modId}
@@ -267,6 +276,8 @@ class ModTest extends TestCase
             ->assertJsonFragment([
                 'name' => 'Lightsabers (Full set)'
             ]);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Lightsabers (Full set)']);
     }
 
     public function testUpdateFailsWhileUnauthenticated(): void
@@ -283,9 +294,7 @@ class ModTest extends TestCase
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
 
-        $this->assertDatabaseHas('mods', [
-            'name' => 'Various Katanas',
-        ]);
+        $this->assertDatabaseHas('mods', ['name' => 'Various Katanas']);
     }
 
     // DELETE /mods/{modId}
