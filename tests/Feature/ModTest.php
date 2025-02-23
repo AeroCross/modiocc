@@ -87,6 +87,17 @@ class ModTest extends TestCase
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
+    public function testReadFailsWhenModDoesNotExist(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+        $mod = Mod::factory()->for($user)->for($game)->create();
+
+        $this
+            ->getJson('/api/games/' . $mod->game->id + 1 . '/mods/' . $mod->id + 1)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
     public function testReadFailsWhenModDoesNotBelongToGame(): void
     {
         $user = User::factory();
@@ -132,6 +143,68 @@ class ModTest extends TestCase
             ]);
     }
 
+    public function testCreateSucceedsWhenModNameExistsForAnotherGame(): void
+    {
+        $user = User::factory()->create();
+        $games = Game::factory()->count(2)->for($user)->create();
+
+        Mod::factory()->for($games[0])->for($user)->create(['name' => 'Faster Walk Speed']);
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->postJson('/api/games/' . $games[1]->id . '/mods', [
+                'name' => 'Faster Walk Speed'
+            ])
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'Faster Walk Speed',
+                'game_id' => $games[1]->id,
+                'user_id' => $user->id,
+            ]);
+    }
+
+    public function testCreateSucceedsWhenAuthenticatedUserDoesNotOwnGame(): void
+    {
+        $users = User::factory()->count(2)->create();
+        $owner = $users[0];
+        $nonOwner = $users[1];
+        $game = Game::factory()->for($owner)->create();
+
+        Sanctum::actingAs($nonOwner);
+
+        $this
+            ->postJson('/api/games/' . $game->id . '/mods', [
+                'name' => 'Satisfactorio'
+            ])
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'Satisfactorio',
+                'game_id' => $game->id,
+                'user_id' => $nonOwner->id,
+            ]);
+    }
+
     public function testCreateFailsWhileUnauthenticated(): void
     {
         $user = User::factory()->create();
@@ -146,6 +219,25 @@ class ModTest extends TestCase
         $this->assertDatabaseMissing('mods', [
             'name' => 'Lightsaber',
         ]);
+    }
+
+    public function testCreateFailsWhenModNameExistsForSameGame(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
+        Mod::factory()->count(2)->sequence(
+            ['name' => 'Krastorio 2'],
+            ['name' => 'Nullius']
+        )->for($user)->for($game)->create();
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->postJson('/api/games/' . $game->id . '/mods', [
+                'name' => 'Krastorio 2'
+            ])
+            ->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     // PATCH /mods/{modId}
