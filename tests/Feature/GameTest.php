@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Game;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class GameTest extends TestCase
@@ -12,11 +15,14 @@ class GameTest extends TestCase
 
     public function testBrowseSucceeds(): void
     {
+        $user = User::factory()->create();
+        Game::factory()->count(30)->for($user)->create();
+
         $this
-            ->getJson('/api/games/')
+            ->getJson('/api/games?page=2')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'data' => [[ // as many games as determined by the pagination argument
+                'data' => [[
                     'id',
                     'name',
                     'user_id',
@@ -24,15 +30,22 @@ class GameTest extends TestCase
                     'updated_at'
                 ]],
                 'meta' => [
-                    'current_page'
+                    'current_page',
+                    'per_page',
+                    'total',
                 ]
+            ])->assertJsonFragment([
+                'current_page' => 2,
+                'total' => 30
             ]);
     }
 
     public function testCreateSucceedsWhileAuthenticated(): void
     {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
         $this
-            ->asAuthorizedUser()
             ->postJson('/api/games/', [
                 'name' => 'Rogue Knight'
             ])
@@ -53,8 +66,10 @@ class GameTest extends TestCase
 
     public function testReadSucceeds(): void
     {
+        $game = Game::factory()->for(User::factory())->create();
+
         $this
-            ->getJson('/api/games/1')
+            ->getJson('/api/games/' . $game->id)
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'data' => [
@@ -67,6 +82,16 @@ class GameTest extends TestCase
             ]);
     }
 
+    public function testReadNotFound(): void
+    {
+        $game = Game::factory()->for(User::factory())->create();
+
+        $this
+            ->getJson('/api/games/' . $game->id + 1)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
+
     public function testCreateFailsWhileUnauthenticated(): void
     {
         $this
@@ -78,9 +103,13 @@ class GameTest extends TestCase
 
     public function testUpdateSucceedsWhileAuthenticated(): void
     {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
         $this
-            ->asAuthorizedUser()
-            ->patchJson('/api/games/1', [
+            ->patchJson('/api/games/' . $game->id, [
                 'name' => 'Rogue Knight Remastered'
             ])
             ->assertStatus(Response::HTTP_OK)
@@ -100,9 +129,14 @@ class GameTest extends TestCase
 
     public function testUpdateFailsWhileAuthenticatedWithDifferentOwner(): void
     {
+        $owner = User::factory()->create();
+        $user = User::factory()->create();
+        $game = Game::factory()->for($owner)->create();
+
+        Sanctum::actingAs($user);
+
         $this
-            ->asAuthorizedUser('b') // Test User B has access to games ID 4-8
-            ->patchJson('/api/games/1', [
+            ->patchJson('/api/games/' . $game->id, [
                 'name' => 'Rogue Knight Remastered'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
@@ -110,33 +144,83 @@ class GameTest extends TestCase
 
     public function testUpdateFailsWhileUnauthenticated(): void
     {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
         $this
-            ->patchJson('/api/games/1', [
+            ->patchJson('/api/games/' . $game->id, [
                 'name' => 'Rogue Knight Remastered'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
+    public function testUpdateSucceedsWhenUpdatingWithSameName(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create([
+            'name' => 'Rogue Knight Remastered'
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $game->id, [
+                'name' => 'Rogue Knight Remastered'
+            ])
+            ->assertStatus(Response::HTTP_OK);
+    }
+
+    public function testUpdateFailsWhenNameAlreadyExists(): void
+    {
+        $user = User::factory()->create();
+
+        Game::factory()->for($user)->create([
+            'name' => 'Call of Duty: Modern Warfare'
+        ]);
+
+        $game = Game::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $game->id, [
+                'name' => 'Call of Duty: Modern Warfare'
+            ])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
     public function testDeleteSucceedsWhileAuthenticated(): void
     {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
         $this
-            ->asAuthorizedUser()
-            ->deleteJson('/api/games/1')
+            ->deleteJson('/api/games/' . $game->id)
             ->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     public function testDeleteFailsWhileUnauthenticated(): void
     {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
         $this
-            ->deleteJson('/api/games/1')
+            ->deleteJson('/api/games/' . $game->id)
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testDeleteFailsWhileAuthenticatedWithDifferentOwner(): void
     {
+        $user = User::factory()->create();
+        $owner = User::factory()->create();
+        $game = Game::factory()->for($owner)->create();
+
+        Sanctum::actingAs($user);
+
         $this
-            ->asAuthorizedUser('b')
-            ->deleteJson('/api/games/1')
+            ->deleteJson('/api/games/' . $game->id)
             ->assertStatus(Response::HTTP_FORBIDDEN);
     }
 }
