@@ -54,9 +54,9 @@ interface ModControllerInterface
      * Delete a mod.
      *
      * @param Request $request
-     * @param Game $game
-     * @param Mod $mod
+     * @param string $gameId
+     * @param string $modId
      * @return JsonResponse
      */
-    public function delete(Request $request, Game $game, Mod $mod): JsonResponse;
+    public function delete(Request $request, string $gameId, string $modId): JsonResponse;
 }

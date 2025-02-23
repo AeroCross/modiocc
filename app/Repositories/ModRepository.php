@@ -27,4 +27,9 @@ class ModRepository extends BaseRepository
     {
         return Mod::where('name', $name)->where('game_id', $gameId)->get()->isNotEmpty();
     }
+
+    public function delete(Mod $mod): int
+    {
+        return $mod->delete();
+    }
 }

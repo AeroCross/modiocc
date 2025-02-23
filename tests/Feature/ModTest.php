@@ -143,51 +143,16 @@ class ModTest extends TestCase
 
     public function testDeleteSucceedsWhileAuthenticated(): void
     {
-        // todo again create the game, include the auth just so that we have something to attempt to delete.
-        $response = $this->post('games', [
-            'name' => 'Rogue Knight'
-        ]);
-
-        $gameId = $response->json('id');
-
-        // todo create the mod, include the auth.
-        $response = $this->post('games/' . $gameId . '/mods', [
-            'name' => 'Lightsaber'
-        ])->assertStatus(Response::HTTP_CREATED);
-
-        // and just for sanity we make sure it actually got created
         $this
-            ->get('games/' . $gameId . '/mods/' . $response->json('id'))
-            ->assertStatus(Response::HTTP_OK);
-
-        // then we finally attempt to delete it without authentication present
-        $this
-            ->delete('games/' . $gameId . '/mods/' . $response->json('id'))
+            ->asAuthorizedUser()
+            ->deleteJson('/api/games/1/mods/2')
             ->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     public function testDeleteFailsWhileUnauthenticated(): void
     {
-        // todo again create the game, include the auth just so that we have something to attempt to delete.
-        $response = $this->post('games', [
-            'name' => 'Rogue Knight'
-        ]);
-
-        $gameId = $response->json('id');
-
-        // todo create the mod, include the auth.
-        $response = $this->post('games/' . $gameId . '/mods', [
-            'name' => 'Lightsaber'
-        ])->assertStatus(Response::HTTP_CREATED);
-
-        // and just for sanity we make sure it actually got created
         $this
-            ->get('games/' . $gameId . '/mods/' . $response->json('id'))
-            ->assertStatus(Response::HTTP_OK);
-
-        // then we finally attempt to delete it without authentication present
-        $this
-            ->delete('games/' . $gameId . '/mods/' . $response->json('id'))
+            ->delete('/api/games/1/mods/2')
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 }

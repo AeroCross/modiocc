@@ -70,4 +70,28 @@ class ModService
             'name' => $validatedData['name']
         ]);
     }
+
+    /** Hard deletes an instance of a Mod.
+     *
+     * @param integer $id
+     * @param Request $request
+     * @return void
+     */
+    public function delete(int $id, Request $request) // TODO: the request should be passed first always, there seem to be an inconsistency here
+    {
+        $user = $request->user();
+        $mod = $this->modRepository->find($id);
+
+        // Not found
+        if ($mod === null) {
+            return null;
+        }
+
+        // Only the owner of the mod, or the owner of the game that the mod is for, can delete a mod
+        if ($user->cannot('delete', $mod)) {
+            return false;
+        }
+
+        return $this->modRepository->delete($mod);
+    }
 }

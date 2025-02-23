@@ -56,8 +56,32 @@ class ModController implements ModControllerInterface
         // TODO: Implement update() method.
     }
 
-    public function delete(Request $request, Game $game, Mod $mod): JsonResponse
+    /**
+     * Deletes a game.
+     *
+     * This is a hard deletion.
+     *
+     * @param Request $request
+     * @param string $gameId The ID of the game.
+     * @param string $modId The ID of the mod.
+     * @return JsonResponse
+     */
+    public function delete(Request $request, string $gameId, string $modId): JsonResponse
     {
-        // TODO: Implement delete() method.
+        $game = $this->modService->delete($gameId, $request);
+
+        if ($game === null) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        if ($game === false) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if ($game > 0) {
+            return response()->json(['message' => 'Success.'], 204);
+        }
+
+        return response()->json(null, 500);
     }
 }

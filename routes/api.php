@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/games/{gameId}')->group(function () {
         Route::post('/mods', [ModController::class, 'create'])->name('create-mod');
+        Route::delete('/mods/{modId}', [ModController::class, 'delete'])->name('delete-mod')->middleware('mod.belongsToGame');
     });
 });
 
