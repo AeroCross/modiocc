@@ -15,8 +15,8 @@ class ModService
     /** Fetches all mods for a given game with pagination.
      *
      * @param Request $request
-     * @param integer $perPage
-     * @return void
+     * @param int $perPage
+     * @return Collection<Mod>
      */
     public function getAllPaginated(Request $request, int $perPage = 10)
     {
@@ -30,7 +30,7 @@ class ModService
     /** Finds a mod.
      *
      * @param Request $request
-     * @return void
+     * @return Mod|null
      */
     public function find(Request $request)
     {
@@ -45,7 +45,7 @@ class ModService
     /** Create a Mod entry for a given game.
      *
      * @param Request $request
-     * @return void
+     * @return Mod|bool false if Mod already exists, Mod otherwise
      */
     public function create(Request $request)
     {
@@ -71,14 +71,13 @@ class ModService
 
     /** Hard deletes an instance of a Mod.
      *
-     * @param integer $id
      * @param Request $request
-     * @return void
+     * @return null|bool|int null if not found, false if unallowed, else the number of rows deleted.
      */
-    public function delete(int $id, Request $request) // TODO: the request should be passed first always, there seem to be an inconsistency here
+    public function delete(Request $request)
     {
         $user = $request->user();
-        $mod = $this->modRepository->find($id);
+        $mod = $this->modRepository->find($request->route()->parameter('modId'));
 
         // Not found
         if ($mod === null) {
@@ -95,14 +94,17 @@ class ModService
 
     /** Update an instance of a mod.
      *
-     * @param integer $id
      * @param Request $request
-     * @return void
+     * @return null|bool|Mod null if not found, false if unallowed, Mod otherwise
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
+        $validatedData = $request->validate([
+            'name' => ['required']
+        ]);
+
         $user = $request->user();
-        $mod = $this->modRepository->find($id);
+        $mod = $this->modRepository->find($request->route()->parameter('modId'));
 
         // Not found
         if ($mod === null) {
@@ -118,10 +120,6 @@ class ModService
         if ($mod->name === $request->input('name')) {
             return $mod;
         }
-
-        $validatedData = $request->validate([
-            'name' => ['required']
-        ]);
 
         return $this->modRepository->update(mod: $mod, data: [
             'name' => $validatedData['name']

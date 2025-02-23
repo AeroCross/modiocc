@@ -48,7 +48,7 @@ class ModController implements ModControllerInterface
         return response()->json(null, 422);
     }
 
-    public function read(Request $request, string $gameId, string $modId): JsonResponse
+    public function read(Request $request): JsonResponse
     {
         return (new ModResource($this->modService->find($request)))->response();
     }
@@ -59,9 +59,9 @@ class ModController implements ModControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function update(Request $request, string $gameId, string $modId): JsonResponse
+    public function update(Request $request): JsonResponse
     {
-        $mod = $this->modService->update($request, $modId);
+        $mod = $this->modService->update($request);
 
         if ($mod === null) {
             return response()->json(['message' => 'Not found.'], 404);
@@ -80,13 +80,11 @@ class ModController implements ModControllerInterface
      * This is a hard deletion.
      *
      * @param Request $request
-     * @param string $gameId The ID of the game.
-     * @param string $modId The ID of the mod.
      * @return JsonResponse
      */
-    public function delete(Request $request, string $gameId, string $modId): JsonResponse
+    public function delete(Request $request): JsonResponse
     {
-        $mod = $this->modService->delete($modId, $request);
+        $mod = $this->modService->delete($request);
 
         if ($mod === null) {
             return response()->json(['message' => 'Not found.'], 404);
