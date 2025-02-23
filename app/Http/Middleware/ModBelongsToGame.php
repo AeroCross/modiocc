@@ -15,7 +15,7 @@ class ModBelongsToGame extends Middleware
         $gameId = $request->route()->parameter('gameId') ?? $request->input('gameId');
         $modId = $request->route()->parameter('modId') ?? $request->input('modId');
 
-        if ((empty($game) || empty($mod))) {
+        if ((empty($gameId) || empty($modId))) {
             return response()->json(['message' => 'gameId and modId required'], 400);
         }
 
