@@ -18,11 +18,11 @@ class GameController extends Controller implements GameControllerInterface
      * @param Request $request
      * @return GameCollection
      */
-    public function browse(Request $request): GameCollection
+    public function browse(Request $request): JsonResponse
     {
-        return new GameCollection(
+        return (new GameCollection(
             $this->gameService->getAllPaginated()
-        );
+        ))->response();
     }
 
     /** Creates a new game for the currently authenticated user.

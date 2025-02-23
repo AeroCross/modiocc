@@ -15,7 +15,13 @@ class ModRepository extends BaseRepository
 
     public function paginate(string $gameId, int $perPage)
     {
-        return Mod::where('game_id', $gameId)->paginate($perPage);
+        $mods = Mod::where('game_id', $gameId);
+
+        if ($mods->count() == 0) {
+            return false;
+        }
+
+        return $mods->paginate($perPage);
     }
 
     public function create(array $data): ?Mod

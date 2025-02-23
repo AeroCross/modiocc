@@ -20,7 +20,7 @@ interface ModControllerInterface
      * @param Game $game
      * @return JsonResponse
      */
-    public function browse(Request $request): ModCollection;
+    public function browse(Request $request): JsonResponse;
 
     /**
      * Create a mod.

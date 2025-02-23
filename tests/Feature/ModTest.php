@@ -43,6 +43,16 @@ class ModTest extends TestCase
             ]);
     }
 
+    public function testBrowseFailsWhenGameDoesNotExist()
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
+        $this
+            ->getJson('/api/games/' . $game->id + 1 . '/mods')
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
     public function testCreateSucceedsWhileAuthenticated(): void
     {
         $user = User::factory()->create();

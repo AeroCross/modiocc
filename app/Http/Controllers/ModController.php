@@ -13,11 +13,15 @@ class ModController implements ModControllerInterface
 {
     public function __construct(protected ModService $modService) {}
 
-    public function browse(Request $request): ModCollection
+    public function browse(Request $request): JsonResponse
     {
-        return new ModCollection(
-            $this->modService->getAllPaginated($request)
-        );
+        $mods = $this->modService->getAllPaginated($request);
+
+        if ($mods === false) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        return (new ModCollection($mods))->response();
     }
 
     /**
@@ -26,7 +30,7 @@ class ModController implements ModControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         $mod = $this->modService->create($request);
 
