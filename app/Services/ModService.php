@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\ModRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
 /**
@@ -16,7 +17,7 @@ class ModService
      *
      * @param Request $request
      * @param int $perPage
-     * @return Collection<Mod>
+     * @return LengthAwarePaginator<Mod>
      */
     public function getAllPaginated(Request $request, int $perPage = 10)
     {

@@ -16,7 +16,7 @@ class GameController extends Controller implements GameControllerInterface
     /** Provides a paginated list of all games for authenticated and unauthenticated users.
      *
      * @param Request $request
-     * @return GameCollection
+     * @return JsonResponse
      */
     public function browse(Request $request): JsonResponse
     {
@@ -66,9 +66,9 @@ class GameController extends Controller implements GameControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function update(Request $request, string $gameId): JsonResponse
+    public function update(Request $request): JsonResponse
     {
-        $game = $this->gameService->update($gameId, $request);
+        $game = $this->gameService->update($request);
 
         if ($game === null) {
             return response()->json(['message' => 'Not found.'], 404);
@@ -89,9 +89,9 @@ class GameController extends Controller implements GameControllerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    public function delete(Request $request, string $gameId): JsonResponse
+    public function delete(Request $request): JsonResponse
     {
-        $game = $this->gameService->delete($gameId, $request);
+        $game = $this->gameService->delete($request);
 
         if ($game === null) {
             return response()->json(['message' => 'Not found.'], 404);

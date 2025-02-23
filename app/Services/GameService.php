@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\GameRepository;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Business logic for Game management.
@@ -17,7 +18,7 @@ class GameService
     /** Fetches all games with pagination.
      *
      * @param integer $perPage
-     * @return void
+     * @return LengthAwarePaginator<Game>
      */
     public function getAllPaginated(int $perPage = 10)
     {
@@ -27,7 +28,7 @@ class GameService
     /** Create a Game entry.
      *
      * @param Request $request
-     * @return void
+     * @return null|Game
      */
     public function create(Request $request)
     {
@@ -43,7 +44,7 @@ class GameService
     /** Finds a Game.
      *
      * @param Request $request
-     * @return void
+     * @return null|Game
      */
     public function find(Request $request)
     {
@@ -56,14 +57,13 @@ class GameService
 
     /** Update an instance of a game.
      *
-     * @param integer $id
      * @param Request $request
-     * @return void
+     * @return null|bool|Game null if not found, false if unallowed, Game otherwise
      */
-    public function update(int $id, Request $request)
+    public function update(Request $request)
     {
         $user = $request->user();
-        $game = $this->gameRepository->find($id);
+        $game = $this->gameRepository->find($request->route()->parameter('gameId'));
 
         // Not found
         if ($game === null) {
@@ -89,14 +89,13 @@ class GameService
 
     /** Hard deletes an instance of a Game.
      *
-     * @param integer $id
      * @param Request $request
-     * @return void
+     * @return null|false|int null if not found, false if unallowed, otherwise number of rows deleted
      */
-    public function delete(int $id, Request $request)
+    public function delete(Request $request)
     {
         $user = $request->user();
-        $game = $this->gameRepository->find($id);
+        $game = $this->gameRepository->find($request->route()->parameter('gameId'));
 
         // Not found
         if ($game === null) {
