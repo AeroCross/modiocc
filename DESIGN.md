@@ -65,8 +65,10 @@ of a resource that already exists.
 ### Seeding vs. Per-test setup
 
 If you look at my Git history (which I've left a ton of context in for posterity if you so desire to look into it)
-you will notice that my tests were a lot leaner on the setup side. This is due to a "seed-first" approach. In this
-approach, I use the same seeded data used for local development in tests, then use the `RefreshDatabases` trait with
+you will notice that my tests were [a lot leaner on the setup side][older GameTest.php] (these were all passing).
+This is due to a "seed-first" approach.
+
+In this approach, I use the same seeded data used for local development in tests, then use the `RefreshDatabases` trait with
 `seed = true`. This means that if you know what the database already contains (or create helper methods in something like
 the parent `TestCase` class), you need to do way less setup per test. This, however, requires having loaded a bunch of
 context.
@@ -75,7 +77,10 @@ I see value in that but also in the "co-located" approach, where you have the se
 This makes it really easy at a glance to reason about what the test is doing and what data it is operating upon.
 
 Both approaches have merit, and I do not particularly feel passionate about either. At the end of the day, I decided to
-go with the "high co-location" approach to make loading context a lot easier for the reader — you, and circumvent problems like unique value generation when using Factories and Faker. 
+go with the "high co-location" approach to make loading context a lot easier for the reader — you, and circumvent
+problems like unique value generation when using Factories and Faker. 
+
+[older GameTest.php]: https://github.com/AeroCross/modiocc/blob/03e940842db82d2df00b07f6ea1e4016858be43e/tests/Feature/GameTest.php#L93-L100
 
 ### .env files
 
