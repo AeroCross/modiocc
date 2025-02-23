@@ -149,11 +149,12 @@ class GameTest extends TestCase
 
     public function testUpdateFailsWhileAuthenticatedWithDifferentOwner(): void
     {
-        $owner = User::factory()->create();
-        $user = User::factory()->create();
+        $users = User::factory()->count(2)->create();
+        $owner = $users[0];
+        $nonOwner = $users[1];
         $game = Game::factory()->for($owner)->create();
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($nonOwner);
 
         $this
             ->patchJson('/api/games/' . $game->id, [
@@ -218,11 +219,12 @@ class GameTest extends TestCase
 
     public function testDeleteFailsWhileAuthenticatedWithDifferentOwner(): void
     {
-        $user = User::factory()->create();
-        $owner = User::factory()->create();
+        $users = User::factory()->count(2)->create();
+        $owner = $users[0];
+        $nonOwner = $users[1];
         $game = Game::factory()->for($owner)->create();
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($nonOwner);
 
         $this
             ->deleteJson('/api/games/' . $game->id)
