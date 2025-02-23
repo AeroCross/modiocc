@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
             'token' => hash('sha256', 'qwerty'),
         ]);
 
-        Mod::factory()->count(5)->create([
+        Mod::factory()->count(25)->create([
             'user_id' => $secondUser->id,
             'game_id' => $secondUser->games->first()->id,
         ]);
