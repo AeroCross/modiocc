@@ -63,4 +63,7 @@ php artisan migrate --database='mysql_test'
 php artisan test
 ```
 
-The original README.md with all the instructions is located in [REQUIREMENTS.md](/REQUIREMENTS.md).
+## Additional notes
+
+- The original README.md with all the instructions is located in [REQUIREMENTS.md](/REQUIREMENTS.md).
+- I've explailned some (very much not all!) of my thoughts and decisions in [DESIGN.md](/DESIGN.md). There are more, but I don't want to spoil all of them!
