@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Game;
 use App\Models\Mod;
 use App\Models\User;
-use App\Services\ModService;
 use Illuminate\Http\Response;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -250,7 +249,7 @@ class ModTest extends TestCase
     }
 
     // PATCH /mods/{modId}
-    public function testUpdateSucceedsWhileAuthenticated(): void
+    public function testUpdateSucceedsWhileAuthenticatedUserOwnsTheMod(): void
     {
         $user = User::factory()->create();
         $game = Game::factory()->for($user)->create();
@@ -280,6 +279,102 @@ class ModTest extends TestCase
         $this->assertDatabaseHas('mods', ['name' => 'Lightsabers (Full set)']);
     }
 
+    public function testUpdateSucceedsWhenAuthenticatedUserOwnsTheGameButNotTheMod(): void
+    {
+        $users = User::factory()->count(2)->create();
+        $gameOwner = $users[0];
+        $modOwner = $users[1];
+        $game = Game::factory()->for($gameOwner)->create();
+        $mod = Mod::factory()->for($modOwner)->for($game)->create();
+
+        Sanctum::actingAs($gameOwner);
+
+        $this
+            ->patchJson('/api/games/' . $mod->game->id . '/mods/' . $mod->id, [
+                'name' => 'Stuff r/rimworld Says (v1.8 compatible)'
+            ])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'Stuff r/rimworld Says (v1.8 compatible)'
+            ]);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Stuff r/rimworld Says (v1.8 compatible)']);
+    }
+
+    public function testUpdateSucceedsWhenNotChangingModName(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+        $mod = Mod::factory()->for($user)->for($game)->create(['name' => 'Sanic Skin']);
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $mod->game->id . '/mods/' . $mod->id, [
+                'name' => 'Sanic Skin'
+            ])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'Sanic Skin'
+            ]);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Sanic Skin']);
+    }
+
+    public function testUpdateSucceedsWhenModNameExistsForAnotherGame(): void
+    {
+        $user = User::factory()->create();
+        $games = Game::factory()->count(2)->for($user)->create();
+
+        Mod::factory()->for($user)->for($games[0])->create(['name' => 'gabeN Announcer Pack']);
+        Mod::factory()->for($user)->for($games[1])->create(['name' => 'Nicky Minaj Annoucer Pack']);
+
+        $mod = $games[1]->mods->first();
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $games[1]->id . '/mods/' . $mod->id, [
+                'name' => 'gabeN Announcer Pack'
+            ])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'game_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at'
+                ]
+            ])
+            ->assertJsonFragment([
+                'name' => 'gabeN Announcer Pack'
+            ]);
+
+        $this->assertEquals(2, Mod::where('name', 'gabeN Announcer Pack')->count());
+    }
+
     public function testUpdateFailsWhileUnauthenticated(): void
     {
         $user = User::factory()->create();
@@ -297,14 +392,94 @@ class ModTest extends TestCase
         $this->assertDatabaseHas('mods', ['name' => 'Various Katanas']);
     }
 
+    public function testUpdateFailsWhenAuthenticatedUserDoesNotOwnMod(): void
+    {
+        $users = User::factory()->count(3)->create();
+        $gameOwner = $users[0];
+        $modOwner = $users[1];
+        $otherUser = $users[2];
+        $game = Game::factory()->for($gameOwner)->create();
+        $mod = Mod::factory()->for($modOwner)->for($game)->create();
+
+        Sanctum::actingAs($otherUser);
+
+        $this
+            ->patchJson('/api/games/' . $game->id . '/mods/' . $mod->id, [
+                'name' => 'Path of Melvor'
+            ])
+            ->assertStatus(Response::HTTP_FORBIDDEN);
+
+        $this->assertDatabaseMissing('mods', ['name' => 'Path of Melvor']);
+    }
+
+    public function testUpdateFailsWhenModDoesNotBelongToGame(): void
+    {
+        $user = User::factory()->create();
+        $games = Game::factory()->count(2)->for($user)->create();
+
+        foreach ($games as $game) {
+            Mod::factory()->for($user)->for($game)->create();
+        }
+
+        $mods = Mod::all();
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->patchJson('/api/games/' . $mods[0]->game->id . '/mods/' . $mods[1]->id, [
+                'name' => 'Path of Melvor'
+            ])
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+
+        $this->assertDatabaseMissing('mods', ['name' => 'Path of Melvor']);
+    }
+
+    public function testUpdateFailsWhenModNameExistsInTheSameGame(): void
+    {
+        $user = User::factory()->create();
+        $game = Game::factory()->for($user)->create();
+
+        Mod::factory()->count(2)->for($user)->for($game)->sequence(
+            ['name' => 'No Clip'],
+            ['name' => 'Infinite Ammo']
+        )->create();
+
+        $mod = Mod::where('name', 'Infinite Ammo')->get()->first();
+
+        $this
+            ->patchJson('/api/games/' . $mod->game->id . '/mods/' . $mod->id, [
+                'name' => 'No Clip'
+            ])
+            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+
+        $this->assertDatabaseHas('mods', ['name' => 'Infinite Ammo']);
+    }
+
     // DELETE /mods/{modId}
-    public function testDeleteSucceedsWhileAuthenticated(): void
+    public function testDeleteSucceedsWhileAuthenticatedUserOwnsMod(): void
     {
         $user = User::factory()->create();
         $game = Game::factory()->for($user)->create();
         $mod = Mod::factory()->for($user)->for($game)->create();
 
         Sanctum::actingAs($mod->user);
+
+        $this
+            ->deleteJson('/api/games/' . $mod->game->id . '/mods/' . $mod->id)
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+
+        $this->assertModelMissing($mod);
+    }
+
+    public function testDeleteSucceedsWhenAuthenticatedUserOwnsTheGameButNotTheMod(): void
+    {
+        $users = User::factory()->count(2)->create();
+        $gameOwner = $users[0];
+        $modOwner = $users[1];
+        $game = Game::factory()->for($gameOwner)->create();
+        $mod = Mod::factory()->for($modOwner)->for($game)->create();
+
+        Sanctum::actingAs($gameOwner);
 
         $this
             ->deleteJson('/api/games/' . $mod->game->id . '/mods/' . $mod->id)
